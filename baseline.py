@@ -1,11 +1,22 @@
 import os
 import json
 from openai import OpenAI
-from .models import Action
+from cicd_pipeline_fixer.models import Action
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_client = None
+
+def _get_client() -> OpenAI:
+    global _client
+    if _client is None:
+        api_key = os.getenv("OPENAI_API_KEY")
+        if api_key:
+            _client = OpenAI(api_key=api_key)
+        else:
+            raise ValueError("OPENAI_API_KEY environment variable is not set")
+    return _client
 
 def get_action(observation: str) -> Action:
+    client = _get_client()
     prompt = f"""
     You are an expert DevOps engineer. Your goal is to fix a broken CI/CD pipeline.
     Current Observation:

@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import difflib
 from typing import Tuple, Dict
-from .models import Action, Observation, State
+from cicd_pipeline_fixer.models import Action, Observation, State
 
 class PipelineEnvironment:
     def __init__(self, workspace_root: str, templates_root: str):
@@ -218,3 +218,6 @@ class PipelineEnvironment:
             efficiency = max(0.5, 1.0 - (self.state.step_count - 5) * 0.05)
             
         return round(progress * efficiency, 2)
+    
+    def get_state(self):
+        return self.state

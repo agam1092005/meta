@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
-from openenv import create_fastapi_app
 from .environment import PipelineEnvironment
-from .models import Action, Observation
+from cicd_pipeline_fixer.models import Action, Observation
 # Fixed: Absolute import for Docker compatibility
 from baseline import get_action
 import os
@@ -12,8 +11,23 @@ workspace = os.path.join(os.path.dirname(__file__), "workspace")
 templates = os.path.join(os.path.dirname(__file__), "templates")
 env = PipelineEnvironment(workspace, templates)
 
-# Standard OpenEnv FastAPI wrapper
-app = create_fastapi_app(env)
+# Create FastAPI app manually
+app = FastAPI(title="CI/CD Pipeline Fixer", version="1.0.0")
+
+# Standard OpenEnv endpoints
+@app.post("/reset")
+async def reset(task_level: str = "easy"):
+    obs = env.reset(task_level=task_level)
+    return obs.model_dump()
+
+@app.post("/step")
+async def step(action: Action):
+    obs = env.step(action)
+    return obs.model_dump()
+
+@app.get("/state")
+async def get_state():
+    return env.get_state().model_dump()
 
 @app.get("/tasks")
 async def get_tasks():
@@ -23,7 +37,7 @@ async def get_tasks():
             {"id": "medium", "description": "Fix a logic bug in app.py that causes test failures"},
             {"id": "hard", "description": "Fix a subtle configuration/linting error in the pipeline"}
         ],
-        "action_schema": Action.schema()
+        "action_schema": Action.model_json_schema()
     }
 
 @app.get("/grader")

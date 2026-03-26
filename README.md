@@ -1,12 +1,18 @@
 # CI/CD Pipeline Fixer - OpenEnv RL Environment
 
-## Advanced Features
-- **Docker Compose Mode**: Solve multi-service connection issues in containerized environments.
-- **GitHub Actions Runner**: Debug workflows, secrets mapping, and environmental mismatches.
-- **Diff Intelligence**: Agents receive unified diffs of their changes to improve accuracy.
-- **Efficiency Grading**: Scores are weighted by step count, rewarding "First-Time Fixes."
+## Running Locally & Testing
 
-## Task Levels
-1. **Easy**: Simple bash script syntax fix.
-2. **Medium**: Docker Compose networking fix (Web -> DB).
-3. **Hard**: GitHub Actions secret mapping and environment variable resolution.
+1. Install dependencies:
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+2. Start the server:
+   ```bash
+   uvicorn cicd_pipeline_fixer.server.app:app --host 0.0.0.0 --port 7860
+   ```
+
+3. Run tests:
+   ```bash
+   pytest
+   ```

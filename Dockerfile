@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y bash git docker-compose && rm -rf /var/
 
 # Install dependencies from the hard task template (most comprehensive)
 COPY server/templates/hard/requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements-dev.txt .
+RUN pip install -r requirements-dev.txt
 RUN pip install fastapi uvicorn pydantic openenv openai requests
 
 # Copy the entire project into the container
