@@ -9,12 +9,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 @pytest.fixture
 def test_env():
-    from cicd_pipeline_fixer.server.environment import PipelineEnvironment
+    from server.environment import PipelineEnvironment
     workspace = os.path.join(os.path.dirname(__file__), "test_workspace")
     templates = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "server/templates")
     return PipelineEnvironment(workspace, templates)
 
 @pytest.fixture
 def api_client():
-    from cicd_pipeline_fixer.server.app import app
+    from server.app import app
     return TestClient(app)

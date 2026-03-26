@@ -1,7 +1,7 @@
 import os
 import json
 from openai import OpenAI
-from cicd_pipeline_fixer.models import Action
+from models import Action
 
 _client = None
 

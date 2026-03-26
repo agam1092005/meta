@@ -1,5 +1,5 @@
 import pytest
-from cicd_pipeline_fixer.models import Action
+from models import Action
 
 def test_anti_cheat(test_env):
     test_env.reset(task_level="easy")

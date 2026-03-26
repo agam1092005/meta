@@ -22,8 +22,8 @@ def test_mock_baseline_logic(monkeypatch):
     # Set a dummy API key for testing
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test-key")
     
-    from cicd_pipeline_fixer.baseline import get_action
-    from cicd_pipeline_fixer.models import Action
+    from baseline import get_action
+    from models import Action
     
     mock_response = MagicMock()
     mock_response.choices[0].message.content = '{"tool": "run_pipeline"}'

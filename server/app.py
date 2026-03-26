@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from .environment import PipelineEnvironment
-from cicd_pipeline_fixer.models import Action, Observation
+from models import Action, Observation
 # Fixed: Absolute import for Docker compatibility
 from baseline import get_action
 import os

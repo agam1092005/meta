@@ -1,0 +1,12 @@
+name: Deployment Workflow
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to Prod
+        env:
+          # BUG: Secret name mismatch. Expecting PROD_API_KEY
+          API_KEY: ${{ secrets.PRODUCTION_KEY }}
+        run: bash deploy.sh
