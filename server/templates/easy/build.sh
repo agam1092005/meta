@@ -1,6 +1,6 @@
 echo "Installing dependencies..."
-# Typo: pyest instead of pytest
-pyest requirements.txt
+# Standard pip install, will fail if requirements.txt has typos
+pip install -r requirements.txt
 if [ $? -ne 0 ]; then
     echo "Dependency installation failed."
     exit 1
