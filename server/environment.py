@@ -61,8 +61,12 @@ class PipelineEnvironment:
                 reward = -0.1
             else:
                 try:
-                    path = os.path.join(self.workspace_root, action.file_path)
-                    if os.path.exists(path):
+                    path = os.path.abspath(os.path.join(self.workspace_root, action.file_path))
+                    if not path.startswith(self.workspace_root):
+                        output = "Error: Permission denied. Path traversal detected."
+                        exit_code = 1
+                        reward = -0.5
+                    elif os.path.exists(path):
                         with open(path, 'r') as f:
                             output = f.read()
                     else:
@@ -86,11 +90,16 @@ class PipelineEnvironment:
                 reward = -0.1
             else:
                 try:
-                    path = os.path.join(self.workspace_root, action.file_path)
-                    with open(path, 'w') as f:
-                        f.write(action.content)
-                    output = f"Successfully wrote to {action.file_path}"
-                    reward = 0.05
+                    path = os.path.abspath(os.path.join(self.workspace_root, action.file_path))
+                    if not path.startswith(self.workspace_root):
+                        output = "Error: Permission denied. Path traversal detected."
+                        exit_code = 1
+                        reward = -0.5
+                    else:
+                        with open(path, 'w') as f:
+                            f.write(action.content)
+                        output = f"Successfully wrote to {action.file_path}"
+                        reward = 0.05
                 except Exception as e:
                     output = str(e)
                     exit_code = 1
