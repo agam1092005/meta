@@ -29,12 +29,10 @@ class PipelineEnvironment:
             original_files={}
         )
         
-        # Clean workspace
         if os.path.exists(self.workspace_root):
             shutil.rmtree(self.workspace_root)
         os.makedirs(self.workspace_root)
         
-        # Copy template and store original state for diffs
         template_path = os.path.join(self.templates_root, task_level)
         for item in os.listdir(template_path):
             s = os.path.join(template_path, item)
@@ -56,7 +54,7 @@ class PipelineEnvironment:
         exit_code = 0
 
         if action.tool == "read_file":
-            reward = 0.01 # Small reward for information gathering
+            reward = 0.01 
             if not action.file_path:
                 output = "Error: file_path is required for read_file"
                 exit_code = 1
@@ -76,7 +74,13 @@ class PipelineEnvironment:
                     exit_code = 1
 
         elif action.tool == "write_file":
-            if not action.file_path or action.content is None:
+            # Anti-Cheat: Protect critical files from modification
+            protected_files = ["build.sh", "test_app.py", "deploy.sh"]
+            if action.file_path in protected_files:
+                output = f"Error: Permission denied. You cannot modify {action.file_path}."
+                exit_code = 1
+                reward = -0.1
+            elif not action.file_path or action.content is None:
                 output = "Error: file_path and content are required for write_file"
                 exit_code = 1
                 reward = -0.1
@@ -94,7 +98,17 @@ class PipelineEnvironment:
         elif action.tool == "run_pipeline":
             self.state.pipeline_runs += 1
             try:
-                # Support for Docker Compose simulation
+                env_vars = {**os.environ, "GITHUB_ACTIONS": "true", "CI": "true"}
+                
+                # GHA Runner Simulation for Hard Task
+                workflow_path = os.path.join(self.workspace_root, "workflow.yml")
+                if self.state.current_task_level == "hard" and os.path.exists(workflow_path):
+                    with open(workflow_path, 'r') as f:
+                        workflow_content = f.read()
+                    # Check if agent fixed the YAML to correctly map the secret
+                    if "API_KEY: ${{ secrets.PROD_API_KEY }}" in workflow_content:
+                        env_vars["API_KEY"] = "supersecret"
+
                 cmd = ["bash", "build.sh"]
                 if os.path.exists(os.path.join(self.workspace_root, "docker-compose.yml")):
                     output += "[System] Detected docker-compose.yml. Running in containerized mode...\n"
@@ -105,13 +119,12 @@ class PipelineEnvironment:
                     capture_output=True,
                     text=True,
                     timeout=30,
-                    env={**os.environ, "GITHUB_ACTIONS": "true", "CI": "true"}
+                    env=env_vars
                 )
                 output += result.stdout + result.stderr
                 exit_code = result.returncode
                 self.state.last_exit_code = exit_code
                 
-                # Reward Shaping
                 new_stage = self._determine_stage(output, exit_code)
                 if exit_code == 0:
                     reward = 1.0
@@ -187,12 +200,10 @@ class PipelineEnvironment:
         )
 
     def get_grader_score(self) -> float:
-        # Base progress score
         progress = self.state.stage_reached / 3.0
         if self.state.last_exit_code == 0:
             progress = 1.0
             
-        # Efficiency Multiplier (Max 1.0, drops if steps > 5)
         efficiency = 1.0
         if self.state.step_count > 5:
             efficiency = max(0.5, 1.0 - (self.state.step_count - 5) * 0.05)

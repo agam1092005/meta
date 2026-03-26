@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request
 from openenv import create_fastapi_app
 from .environment import PipelineEnvironment
 from .models import Action, Observation
-from ..baseline import get_action
+# Fixed: Absolute import for Docker compatibility
+from baseline import get_action
 import os
 import asyncio
 
@@ -45,7 +46,6 @@ async def run_baseline_endpoint():
         for _ in range(max_steps):
             try:
                 # Get action from GPT-4o
-                # Converting Observation to text for the LLM
                 obs_text = f"Terminal: {obs.terminal_output}\nFiles: {obs.files_in_directory}"
                 action = get_action(obs_text)
                 
@@ -55,7 +55,7 @@ async def run_baseline_endpoint():
                 if obs.done:
                     break
             except Exception:
-                break # Fail gracefully on baseline error
+                break 
         
         scores[task_id] = env.get_grader_score()
         

@@ -3,22 +3,22 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Install system dependencies
-# Added docker-compose for the Medium Task
 RUN apt-get update && apt-get install -y bash git docker-compose && rm -rf /var/lib/apt/lists/*
 
-# Install OpenEnv and dependencies
-COPY cicd_pipeline_fixer/server/templates/hard/requirements.txt .
+# Install dependencies from the hard task template (most comprehensive)
+COPY server/templates/hard/requirements.txt .
 RUN pip install -r requirements.txt
-RUN pip install fastapi uvicorn pydantic openenv openai
+RUN pip install fastapi uvicorn pydantic openenv openai requests
 
-# Copy the environment code
-COPY cicd_pipeline_fixer/ /app/cicd_pipeline_fixer/
+# Copy the entire project into the container
+COPY . /app/
 
-# Set up the workspace
-RUN mkdir -p /app/cicd_pipeline_fixer/server/workspace
+# Set up the workspace directory
+RUN mkdir -p /app/server/workspace
 
+# Set environment variables
 ENV PYTHONPATH=/app
-# Default OpenAI key placeholder for baseline agent
 ENV OPENAI_API_KEY=your_key_here
 
-CMD ["uvicorn", "cicd_pipeline_fixer.server.app:app", "--host", "0.0.0.0", "--port", "7860"]
+# Start the FastAPI server
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]
