@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # BUG: Wrong host, should be 'db'
+      - DATABASE_URL=postgres://user:pass@localhost:5432/db
+    depends_on:
+      - db
+  db:
+    image: postgres:13-alphine
+    ports:
+      - "5432:5432"

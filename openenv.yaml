@@ -1,0 +1,5 @@
+name: cicd-pipeline-fixer
+version: 1.0.0
+description: An RL environment for fixing broken CI/CD pipelines.
+tags: [openenv, software-engineering, cicd]
+entrypoint: server.app:app
