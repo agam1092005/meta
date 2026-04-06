@@ -1,73 +1,39 @@
 from fastapi import FastAPI, Request
+from openenv.core.env_server import create_fastapi_app
 from .environment import PipelineEnvironment
 from models import Action, Observation
-# Fixed: Absolute import for Docker compatibility
 from baseline import get_action
 import os
-import asyncio
 
-# Initialize environment
+# Initialize environment paths
 workspace = os.path.join(os.path.dirname(__file__), "workspace")
 templates = os.path.join(os.path.dirname(__file__), "templates")
-env = PipelineEnvironment(workspace, templates)
 
-# Create FastAPI app manually
-app = FastAPI(title="CI/CD Pipeline Fixer", version="1.0.0")
+# NOTE: OpenEnv expects the Environment CLASS, not the instance, 
+# along with the Action and Observation models to build the spec automatically.
+class BoundPipelineEnvironment(PipelineEnvironment):
+    def __init__(self):
+        super().__init__(workspace, templates)
 
-# Standard OpenEnv endpoints
-@app.post("/reset")
-async def reset(task_level: str = "easy"):
-    obs = env.reset(task_level=task_level)
-    return obs.model_dump()
-
-@app.post("/step")
-async def step(action: Action):
-    obs = env.step(action)
-    return obs.model_dump()
-
-@app.get("/state")
-async def get_state():
-    return env.get_state().model_dump()
+# Standard OpenEnv FastAPI wrapper (Builds /ws, /step, /reset, /state natively)
+app = create_fastapi_app(BoundPipelineEnvironment, Action, Observation)
 
 @app.get("/tasks")
 async def get_tasks():
     return {
         "tasks": [
-            {"id": "easy", "description": "Fix a syntax error in build.sh or requirements.txt"},
-            {"id": "medium", "description": "Fix a logic bug in app.py that causes test failures"},
-            {"id": "hard", "description": "Fix a subtle configuration/linting error in the pipeline"}
-        ],
-        "action_schema": Action.model_json_schema()
-    }
-
-@app.get("/grader")
-async def get_grader():
-    return {"score": env.get_grader_score()}
-
-@app.post("/baseline")
-async def run_baseline_endpoint():
-    """
-    Triggers the OpenAI baseline agent for all 3 tasks (Easy, Medium, Hard).
-    Returns the scores as required by the hackathon.
-    """
+            {"id": "easy", "description": "Fix a synta            {"id": "easy", "description": "Fix a synta            {"id": "easy", "descripix a logic bug in app.py that causes test failures"},
+            {"id": "hard", "description"            {"id": "hard", "description"    i            {"id": "hard", "descriptiac            {"id": "hard", "den_     a()
+                               c                                c                               t                                c                               nme                               c                                as                               c                                c            seline agent for all 3 tasks (Easy, Medium, Hard).
+    Returns the scores as req    Returns the scores as req    Returns thoundPipelineEnvironment()
     scores = {}
     for task_id in ["easy", "medium", "hard"]:
-        # Reset to specific level
         obs = env.reset(task_level=task_id)
-        
-        # Simple loop for baseline agent to attempt the task
         max_steps = 5
+        
         for _ in range(max_steps):
             try:
-                # Get action from GPT-4o
-                obs_text = f"Terminal: {obs.terminal_output}\nFiles: {obs.files_in_directory}"
-                action = get_action(obs_text)
-                
-                # Execute action
-                obs = env.step(action)
-                
-                if obs.done:
-                    break
+                                                                                                                                                                                                                                     break
             except Exception:
                 break 
         

@@ -40,5 +40,23 @@ def get_action(observation: str) -> Action:
     return Action(**data)
 
 if __name__ == "__main__":
-    # Example usage for testing
-    print("Baseline script loaded.")
+    import requests
+    import time
+    
+    print("Testing Baseline Inference Script...")
+    print("Connecting to local environment on port 7860...")
+    
+    try:
+        # Trigger the baseline endpoint you built
+        response = requests.post("http://localhost:7860/baseline", timeout=60)
+        response.raise_for_status()
+        
+        data = response.json()
+        print("\n--- Baseline Scores ---")
+        for task, score in data.get("scores", {}).items():
+            print(f"Task '{task.upper()}': {score}/1.0")
+            
+        print("\nBaseline script executed successfully.")
+    except Exception as e:
+        print(f"Failed to run baseline: {e}")
+        print("Ensure the server is running (uvicorn server.app:app --port 7860)")
