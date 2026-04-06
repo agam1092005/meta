@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y bash git docker-compose && rm -rf /var/
 COPY server/templates/hard/requirements.txt .
 COPY requirements-dev.txt .
 RUN pip install -r requirements-dev.txt
-RUN pip install fastapi uvicorn pydantic openenv openai requests
+RUN pip install fastapi uvicorn pydantic openenv-core openai requests
 
 # Copy the entire project into the container
 COPY . /app/
