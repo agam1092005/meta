@@ -7,7 +7,7 @@ name = "cicd-pipeline-fixer"
 version = "1.0.0"
 description = "An RL environment for fixing broken CI/CD pipelines."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "openenv-core",
     "fastapi",

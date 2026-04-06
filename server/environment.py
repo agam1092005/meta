@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import difflib
 from typing import Tuple, Dict
-from cicd_pipeline_fixer.models import Action, Observation, State
+from models import Action, Observation, State
 
 class PipelineEnvironment:
     def __init__(self, workspace_root: str, templates_root: str):

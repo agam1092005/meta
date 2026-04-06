@@ -1,16 +1,17 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y bash git docker-compose && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-COPY server/templates/hard/requirements.txt /tmp/req-hard.txt
+# Copy requirements
 COPY requirements.txt .
+COPY server/templates/hard/requirements.txt /tmp/req-hard.txt
 
-RUN pip install -r requirements.txt && \
-    pip install -r /tmp/req-hard.txt || true
+# Install dependencies normally (no || true hack!)
+RUN pip install -r requirements.txt
+RUN pip install -r /tmp/req-hard.txt
 
 # Copy the entire project into the container
 COPY . /app/

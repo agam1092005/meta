@@ -18,6 +18,18 @@ class BoundPipelineEnvironment(PipelineEnvironment):
 # Standard OpenEnv FastAPI wrapper (Builds /ws, /step, /reset, /state natively)
 app = create_fastapi_app(BoundPipelineEnvironment, Action, Observation)
 
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to the CI/CD Pipeline Fixer Environment",
+        "status": "online",
+        "endpoints": {
+            "tasks": "/tasks",
+            "grader": "/grader",
+            "baseline": "/baseline (POST)"
+        }
+    }
+
 @app.get("/tasks")
 async def get_tasks():
     return {
