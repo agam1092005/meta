@@ -22,10 +22,26 @@ app = create_fastapi_app(BoundPipelineEnvironment, Action, Observation)
 async def get_tasks():
     return {
         "tasks": [
-            {"id": "easy", "description": "Fix a synta            {"id": "easy", "description": "Fix a synta            {"id": "easy", "descripix a logic bug in app.py that causes test failures"},
-            {"id": "hard", "description"            {"id": "hard", "description"    i            {"id": "hard", "descriptiac            {"id": "hard", "den_     a()
-                               c                                c                               t                                c                               nme                               c                                as                               c                                c            seline agent for all 3 tasks (Easy, Medium, Hard).
-    Returns the scores as req    Returns the scores as req    Returns thoundPipelineEnvironment()
+            {"id": "easy", "description": "Fix a syntax error in build.sh or requirements.txt"},
+            {"id": "medium", "description": "Fix a logic bug in app.py that causes test failures"},
+            {"id": "hard", "description": "Fix a subtle configuration/linting error in the pipeline"}
+        ],
+        "action_schema": Action.model_json_schema()
+    }
+
+@app.get("/grader")
+async def get_grader():
+    # We must instantiate the env locally just for the grader/baseline endpoints
+    env = BoundPipelineEnvironment()
+    return {"score": env.get_grader_score()}
+
+@app.post("/baseline")
+async def run_baseline_endpoint():
+    """
+    Triggers the OpenAI baseline agent for all 3 tasks (Easy, Medium, Hard).
+    Returns the scores as required by the hackathon.
+    """
+    env = BoundPipelineEnvironment()
     scores = {}
     for task_id in ["easy", "medium", "hard"]:
         obs = env.reset(task_level=task_id)
@@ -33,9 +49,13 @@ async def get_tasks():
         
         for _ in range(max_steps):
             try:
-                                                                                                                                                                                                                                     break
+                obs_text = f"Terminal: {obs.terminal_output}\nFiles: {obs.files_in_directory}"
+                action = get_action(obs_text)
+                obs = env.step(action)
+                if obs.done:
+                    break
             except Exception:
-                break 
+                break
         
         scores[task_id] = env.get_grader_score()
         
