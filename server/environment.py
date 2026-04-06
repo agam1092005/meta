@@ -1,4 +1,5 @@
 import os
+import asyncio
 import shutil
 import subprocess
 import difflib
@@ -29,9 +30,17 @@ class PipelineEnvironment:
             original_files={}
         )
         
+        # SAFER RESET LOGIC: Delete contents, not the folder itself
         if os.path.exists(self.workspace_root):
-            shutil.rmtree(self.workspace_root)
-        os.makedirs(self.workspace_root)
+            for item in os.listdir(self.workspace_root):
+                item_path = os.path.join(self.workspace_root, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
+        else:
+            os.makedirs(self.workspace_root, exist_ok=True)
+
         
         template_path = os.path.join(self.templates_root, task_level)
         for item in os.listdir(template_path):
@@ -45,6 +54,11 @@ class PipelineEnvironment:
                     self.state.original_files[item] = f.read()
                 
         return self._get_observation("Environment reset.", 0, 0.0, False)
+
+    async def reset_async(self, task_level: str = "easy") -> Observation:
+        """Async wrapper required by OpenEnv's http_server."""
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.reset, task_level)
 
     def step(self, action: Action) -> Observation:
         self.state.step_count += 1
@@ -221,3 +235,7 @@ class PipelineEnvironment:
     
     def get_state(self):
         return self.state
+
+    def close(self):
+        """Teardown hook required by OpenEnv's http_server. Nothing to clean up."""
+        pass

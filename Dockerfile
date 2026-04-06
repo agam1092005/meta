@@ -16,8 +16,8 @@ RUN pip install -r /tmp/req-hard.txt
 # Copy the entire project into the container
 COPY . /app/
 
-# Set up the workspace directory
-RUN mkdir -p /app/server/workspace
+# Set up the workspace directory AND grant full permissions
+RUN mkdir -p /app/server/workspace && chmod -R 777 /app
 
 # Set environment variables
 ENV PYTHONPATH=/app
