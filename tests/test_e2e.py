@@ -3,7 +3,7 @@ import os
 from unittest.mock import patch, MagicMock
 
 # Skip if no API key is provided, or mock it for CI
-@pytest.mark.skipif(not os.getenv("OPENAI_API_KEY"), reason="Requires OpenAI API Key")
+@pytest.mark.skipif(not os.getenv("HF_TOKEN"), reason="Requires HF API Key")
 def test_baseline_e2e(api_client):
     """
     Test the baseline endpoint which runs the OpenAI agent across tasks.
@@ -19,10 +19,12 @@ def test_mock_baseline_logic(monkeypatch):
     """
     Unit test for the baseline logic itself using a mock LLM.
     """
-    # Set a dummy API key for testing
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-key")
+    # Set dummy API config for testing
+    monkeypatch.setenv("HF_TOKEN", "hf-test-token")
+    monkeypatch.setenv("API_BASE_URL", "http://test-url.com")
+    monkeypatch.setenv("MODEL_NAME", "test-model")
     
-    from baseline import get_action
+    from inference import get_action
     from models import Action
     
     mock_response = MagicMock()

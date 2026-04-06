@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from openenv.core.env_server import create_fastapi_app
 from .environment import PipelineEnvironment
 from models import Action, Observation
-from baseline import get_action
+from inference import get_action
 import os
 
 # Initialize environment paths
@@ -50,7 +50,7 @@ async def get_grader():
 @app.post("/baseline")
 async def run_baseline_endpoint():
     """
-    Triggers the OpenAI baseline agent for all 3 tasks (Easy, Medium, Hard).
+    Triggers the inference.py baseline agent for all 3 tasks (Easy, Medium, Hard).
     Returns the scores as required by the hackathon.
     """
     env = BoundPipelineEnvironment()
