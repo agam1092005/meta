@@ -9,6 +9,7 @@ description = "An RL environment for fixing broken CI/CD pipelines."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+    "openenv",
     "openenv-core",
     "fastapi",
     "uvicorn",

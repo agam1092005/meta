@@ -5,11 +5,12 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y bash git docker-compose && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies from the hard task template (most comprehensive)
-COPY server/templates/hard/requirements.txt .
-COPY requirements-dev.txt .
-RUN pip install -r requirements-dev.txt
-RUN pip install fastapi uvicorn pydantic openenv-core openai requests
+# Install dependencies
+COPY server/templates/hard/requirements.txt /tmp/req-hard.txt
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt && \
+    pip install -r /tmp/req-hard.txt || true
 
 # Copy the entire project into the container
 COPY . /app/
@@ -19,7 +20,6 @@ RUN mkdir -p /app/server/workspace
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV OPENAI_API_KEY=your_key_here
 
 # Start the FastAPI server
 CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]
